@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TrainRegister {
+  id                     String           @id @default(uuid())
+  files                  File[]
+  name                   String
+  description            String?
+  modelGeneratorData     String?
+
+}
+
+model File {
+  id                     String           @id @default(uuid())
+  register               TrainRegister        @relation(fields: [registerId], references: [id])
+  registerId             String
+  fieldName              String
+  type                   TypeFile
+  name                   String
+  link                   String
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+}
+
+enum TypeFile {
+  excel
+  application
+  pdf
+  word
+  image
+  video
+  audio
+  presentation
+  other
+}

@@ -1,0 +1,1 @@
+export type TypeDocIngest = 'codex' | 'law' | 'judgment' | 'libro'
