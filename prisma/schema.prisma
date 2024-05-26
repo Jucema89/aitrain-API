@@ -13,9 +13,8 @@ model TrainRegister {
   id                     String           @id @default(uuid())
   files                  File[]
   name                   String
-  description            String?
-  modelGeneratorData     String?
-
+  description            String           @default("")
+  modelGeneratorData     String           @default("")
 }
 
 model File {
