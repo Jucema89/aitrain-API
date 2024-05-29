@@ -1,1 +1,5 @@
-export type CollectionDB = 'CIVIL' | 'COMERCIAL' | 'CONSTITUCIONAL' | 'ADMINISTRATIVO' | 'PENAL' | 'LABORAL' | 'INTERNACIONAL' | 'TRIBUTARIO'
+export interface QdrantDB {
+    database_url: string
+    database_key: string
+    database_collection: string
+}

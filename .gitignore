@@ -48,10 +48,11 @@ jspm_packages/
 
 # exclude uploads
 uploads/*
+chunks/*
 
 #uploads files in folder
 !uploads/.gitkeep 
-
+!chuncks/.gitkeep 
 #folder data for IA
 data/*
 !data/.gitkeep

@@ -18,7 +18,7 @@ export class FileService extends AWSService {
       return file
   }
 
-  createMany( files: Express.Multer.File[], idUser:string )
+  createMany( files: Express.Multer.File[], idRegister:string )
   :Promise<Prisma.FileUncheckedCreateInput[]> {
     return new Promise(async (result, reject) => {
       try { 
@@ -36,7 +36,7 @@ export class FileService extends AWSService {
 
             payload = { 
               ...filesUpload[i],
-              authorId: idUser
+              registerId: idRegister
             }
 
             //archivos registrados en DB

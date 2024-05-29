@@ -12,7 +12,7 @@ export interface UploadFile {
     size: number
 }
 
-export type TypeFile = 'excel'| 'application' | 'word' | 'image' | 'video' | 'audio' | 'presentation' |'other'
+export type TypeFile = 'excel'| 'application' | 'word' | 'image' | 'video' | 'audio' | 'presentation' | 'pdf' |'other'
 
 export interface DataForFile {
     success: boolean
@@ -33,7 +33,7 @@ export interface FileDataSave {
 
 export interface File {
     id: string
-    authorId: string
+    registerId: string
     fieldName: string
     type: TypeFile
     name: string
