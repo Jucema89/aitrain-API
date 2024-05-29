@@ -2,8 +2,9 @@ import "dotenv/config"
 import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
 import { Document } from "@langchain/core/documents";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { QdrantDB } from "../interfaces/qdrant.interface";
 
-async function createIndex(docs: Document<Record<string, any>>[]){
+async function createIndex(docs: Document<Record<string, any>>[], database: QdrantDB){
 
     const vectorStore = await QdrantVectorStore.fromDocuments(
         docs,
@@ -11,9 +12,9 @@ async function createIndex(docs: Document<Record<string, any>>[]){
             modelName: "text-embedding-3-small",
         }),
         {
-            url: process.env.QDRANT_URL,
-            collectionName: `${process.env.QDRANT_DATABASE}`,
-            apiKey: `${process.env.QDRANT_KEY}`
+            url: database.database_url,
+            collectionName: database.database_collection,
+            apiKey: database.database_key
         }
     )
 

@@ -6,4 +6,5 @@ export interface TrainingData {
     name: string
     description: string
     modelGeneratorData: string
+    DB_VectorName: string
 }

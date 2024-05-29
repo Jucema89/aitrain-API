@@ -10,8 +10,9 @@ import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { CSVLoader } from "langchain/document_loaders/fs/csv";
 import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { createIndex } from "../database/qdrant";
-import { TypeDocIngest } from "../interfaces/ingest.interface";
 import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
+import { QdrantDB } from "../interfaces/qdrant.interface";
+import { IngestFile } from "../interfaces/ingest.interface";
 
 
 
@@ -57,7 +58,7 @@ export class Ingest {
      * @param url Url with data
      * @returns 
      */
-    async uploadFromWeb(url: string){
+    async uploadFromWeb(url: string, database: QdrantDB){
         try {
             const loader = new PuppeteerWebBaseLoader(url)
             const scrapperData = await loader.load()
@@ -65,7 +66,6 @@ export class Ingest {
             const textSplitter = new RecursiveCharacterTextSplitter({
                 chunkSize: 1200,
                 chunkOverlap: 100,
-                separators: ["Artículo", "ARTICULO", " ", "."],
             })
 
             const chunks = await textSplitter.splitDocuments(scrapperData);
@@ -80,12 +80,12 @@ export class Ingest {
                 //iterate block of 500docs array for indexing
                 for(let chunk of groupChuncks){
                     console.log('iterate create index')
-                    await createIndex(chunk)  
+                    await createIndex(chunk, database)  
                 }
 
             } else if(chunks.length <= 500){
                 //indexing documents smalls
-                return createIndex(chunks)  
+                return createIndex(chunks, database)  
             }
             
         } catch (error) {
@@ -107,7 +107,7 @@ export class Ingest {
     /**
      * Upload alls files in Folder 'data' to Pinecone
      */
-    async uploadFolderComplete(){
+    async uploadFolderComplete(database: QdrantDB){
         try {
 
             const directoryLoader = new DirectoryLoader(this.FROM_PATH, {
@@ -124,7 +124,7 @@ export class Ingest {
         
             const docs = await textSplitter.splitDocuments(rawDocs)
             //if (this.VECTOR_STORE === "pinecone") await runPinecone(docs);
-            await createIndex(docs)
+            await createIndex(docs, database)
 
             
         } catch (error) {
@@ -139,10 +139,10 @@ export class Ingest {
      * @returns 
      * @deprecated
      */
-    async uploadSingleFile(file: Express.Multer.File, ext: string, typeDoc: TypeDocIngest){
+    async uploadSingleFile(file: Express.Multer.File, ext: string, database: QdrantDB){
         try {
-            const chunks = await this.ingestSplitter(file.path, ext, typeDoc)
-            return createIndex(chunks)
+            const chunks = await this.ingestSplitter(file.path, ext)
+            return createIndex(chunks, database)
 
         } catch (error) {
             console.log('error uploadSingleFile => ', error)
@@ -150,11 +150,11 @@ export class Ingest {
         }
     }
 
-    async uploadSingleFileQdrant(file: Express.Multer.File, ext: string, typeDoc: TypeDocIngest): Promise<QdrantVectorStore | QdrantVectorStore[] | undefined> {
+    async uploadSingleFileQdrant( data: IngestFile ): Promise<QdrantVectorStore | QdrantVectorStore[] | undefined> {
         const responses: QdrantVectorStore[] = []
 
         try {
-            const chunks = await this.ingestSplitter(file.path, ext, typeDoc)
+            const chunks = await this.ingestSplitter(data.file.path, data.ext)
             
             if(chunks.length > 500){
                 //indexing big docs
@@ -168,7 +168,7 @@ export class Ingest {
                 
                 for(let chunk of groupChuncks){
                     console.log('iterate create index')
-                    let res = await createIndex(chunk)
+                    let res = await createIndex(chunk, data.database)
                     responses.push( res )
                 }
 
@@ -176,7 +176,7 @@ export class Ingest {
 
             } else if(chunks.length <= 500){
                 //indexing documents smalls
-                const response = await createIndex(chunks)
+                const response = await createIndex(chunks, data.database)
                 return response
             }
             
@@ -206,23 +206,12 @@ export class Ingest {
     async ingestSplitter(
         pathFile: string, 
         ext: string, 
-        typeDoc: TypeDocIngest
     ):Promise<Document<Record<string, any>>[]> {
 
-        let textSplitter: RecursiveCharacterTextSplitter
-
-        if(typeDoc === 'codex' || typeDoc === 'law'){
-            textSplitter = new RecursiveCharacterTextSplitter({
-                chunkSize: 600,
-                chunkOverlap: 60,
-                separators: ["Artículo", "ARTICULO", " ", "."],
-            })
-        } else {
-            textSplitter = new RecursiveCharacterTextSplitter({
-                chunkSize: 600,
-                chunkOverlap: 60
-            })
-        }
+        const textSplitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 600,
+            chunkOverlap: 60
+        })
 
         let loader
         let rawDocs: Document<Record<string, any>>[]

@@ -1,8 +1,8 @@
 import prisma from '../database/prisma';
-import { Prisma, TypeFile } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { TrainingData } from '../interfaces/training.interface';
 
-export class Training {
+export class TrainingPrisma {
 
     getAllTrainingData(filters?: any) {
         return prisma.trainRegister.findMany({})
