@@ -1,34 +1,34 @@
 import prisma from '../database/prisma';
 import { Prisma } from '@prisma/client';
-import { TrainingData } from '../interfaces/training.interface';
+import { Training } from '../interfaces/training.interface';
 
 export class TrainingPrisma {
 
     getAllTrainingData(filters?: any) {
-        return prisma.trainRegister.findMany({})
+        return prisma.train.findMany({})
     }
 
     getOneTraining(id: string){
-        return prisma.trainRegister.findUnique({
+        return prisma.train.findUnique({
             where: { id: id}
         })
     }
 
-    createOneTrain(payload: Prisma.TrainRegisterUncheckedCreateInput){
-        return prisma.trainRegister.create({ data: payload })
+    createOneTrain(payload: Prisma.TrainUncheckedCreateInput){
+        return prisma.train.create({ data: payload })
     }
 
-    async update( id: string, payload: Prisma.TrainRegisterUncheckedCreateInput ): Promise<Prisma.Prisma__TrainRegisterClient<TrainingData>> {
-        return prisma.trainRegister.update({
+    async update( id: string, payload: Prisma.TrainUncheckedCreateInput ): Promise<Prisma.Prisma__TrainClient<Training>> {
+        return prisma.train.update({
             where: { id: id},
             data: payload,
-            include: { files: true }
+            include: { files: true, environment: true }
         })
     }
 
     deleteById(id: string): Promise<{ success: boolean, message: string }> {
         return new Promise(async(result, reject) => {
-          const deletedFile = await prisma.trainRegister.delete({
+          const deletedFile = await prisma.train.delete({
             where: { id: id }
           })
           

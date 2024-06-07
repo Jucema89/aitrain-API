@@ -11,3 +11,8 @@ router.post('/get-models',
     validateFields,
     getModelsAvailable
 )
+// validateKeyOpenAI(apiKey: string):Observable<boolean>{
+//     return this.http.post<{success: boolean, is_valid: boolean}>('/openai/validate-key/', { apiKey: apiKey }).pipe(map((res) => res.is_valid))
+//   }
+
+export { router }

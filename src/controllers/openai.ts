@@ -28,5 +28,5 @@ async function getModelsAvailable(req: Request, res: Response) {
 
 
 export {
-    getModelsAvailable
+    getModelsAvailable,
 }

@@ -9,27 +9,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TrainRegister {
-  id                     String           @id @default(uuid())
+model Train {
+  id                     String               @id @default(uuid())
   files                  File[]
   name                   String
-  description            String           @default("")
-  modelGeneratorData     String           @default("")
-  DB_VectorName          String
+  description            String               @default("")
+  modelGeneratorData     String               @default("")
+  environmentId          String
+  type_answer            TypeAnswer
+  environment            Config               @relation(fields: [environmentId], references: [id])
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
 }
 
+model Config {
+  id                     String               @id @default(uuid())
+  train                  Train[]
+  openAiKey              String
+  postgresUrl            String
+}
+
 model File {
-  id                     String           @id @default(uuid())
-  register               TrainRegister        @relation(fields: [registerId], references: [id])
-  registerId             String
+  id                     String               @id @default(uuid())
+  train                  Train                @relation(fields: [trainId], references: [id])
+  trainId                String
   fieldName              String
   type                   TypeFile
   name                   String
   link                   String
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
+}
+
+enum TypeAnswer {
+  alls
+  short
+  long_explained
 }
 
 enum TypeFile {
