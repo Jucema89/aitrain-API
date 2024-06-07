@@ -22,7 +22,7 @@ export class TrainingPrisma {
         return prisma.train.update({
             where: { id: id},
             data: payload,
-            include: { files: true, environment: true }
+            include: { files: true }
         })
     }
 

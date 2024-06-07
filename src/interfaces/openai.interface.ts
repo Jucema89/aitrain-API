@@ -1,3 +1,5 @@
+import OpenAI from "openai"
+
 export interface OpenaiFinetuning {
     apiKey: string
     training_file: string
@@ -25,4 +27,13 @@ export interface OpenaiFile {
     created_at: number
     filename: string
     purpose: string
+}
+
+export interface OpenAiModelsResponse { 
+    success: boolean,
+    data: OpenAI.Model[],
+    error: {
+        status: number,
+        message: string
+    }
 }

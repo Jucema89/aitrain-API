@@ -13,14 +13,12 @@ const serviceIngest = new Ingest()
 async function createTraining(req: Request, res: Response) {
     try {
         const { files } = req
-        const { name, description, modelGeneratorData } = req.body
+        const { name, description, modelGeneratorData, openAiKey, type_answer } = req.body
 
         const filesArray = files as Express.Multer.File[]
 
         const payload: Prisma.TrainUncheckedCreateInput = {
-            name: name, 
-            description: description,
-            modelGeneratorData: modelGeneratorData,
+            name, description, modelGeneratorData, openAiKey, type_answer
         }
 
         //create Train in DB Postgress
@@ -120,16 +118,15 @@ async function getOneTraining(req: Request, res: Response){
 
 async function updateTraining(req: Request, res: Response) {
     try {
-        const { id, name, description, modelGeneratorData } = req.body
+        const { id, name, description } = req.body
 
         const actualData = await serviceTraining.getOneTraining( id )
 
         if(actualData){
-            const payload: Prisma.TrainRegisterUncheckedCreateInput = {
+            const payload: Prisma.TrainUncheckedCreateInput = {
                 ...actualData,
                 name: name, 
                 description: description,
-                modelGeneratorData: modelGeneratorData
             }
     
             const updateTrain = await serviceTraining.update( id, payload )

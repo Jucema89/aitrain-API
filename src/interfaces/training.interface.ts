@@ -6,7 +6,6 @@ export interface Training {
     name :string
     description :string           
     modelGeneratorData :string
-    environment: ConfigurationEnv
     type_answer: TypeAnswer
     createdAt : Date             
     updatedAt : Date  

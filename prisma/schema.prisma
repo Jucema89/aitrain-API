@@ -15,18 +15,10 @@ model Train {
   name                   String
   description            String               @default("")
   modelGeneratorData     String               @default("")
-  environmentId          String
+  openAiKey              String
   type_answer            TypeAnswer
-  environment            Config               @relation(fields: [environmentId], references: [id])
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
-}
-
-model Config {
-  id                     String               @id @default(uuid())
-  train                  Train[]
-  openAiKey              String
-  postgresUrl            String
 }
 
 model File {

@@ -1,16 +1,42 @@
 import OpenAI from 'openai';
 import fs from "fs";
-import { OpenaiFile, OpenaiFinetuning, OpenaiFinetuningResponse } from '../interfaces/openai.interface';
+import { OpenaiFile, OpenaiFinetuning, OpenaiFinetuningResponse, OpenAiModelsResponse } from '../interfaces/openai.interface';
 
 export class OpenAIService {
 
-    async getListModelsAvailables(apiKey: string){
-        const openai = new OpenAI({
-            apiKey: apiKey
-        })
+    getListModelsAvailables(apiKey: string): Promise<OpenAiModelsResponse>{
+        return new Promise(async (result, reject) => {
 
-        const list = await openai.models.list()
-        return list.data
+            let response: OpenAiModelsResponse = {
+                success: false,
+                data: {} as OpenAI.Model[],
+                error: {
+                    status: 0,
+                    message: ''
+                }
+            }
+
+            const openai = new OpenAI({
+                apiKey: apiKey
+            })
+            
+            const models = await openai.models.list()
+            .catch(async (err) => {
+                if (err instanceof OpenAI.APIError) {
+                    response.success = false
+                    response.error.status = Number(err.code)
+                    response.error.message = err.message
+                    result(response)
+                }
+            })
+
+            if(models){
+                response.success = true
+                response.data = [...models.data]
+                response.error.status = 200
+                result(response)
+            }
+        })
     }
 
     async createFinetunningJob(payload: OpenaiFinetuning): Promise<OpenaiFinetuningResponse>{
