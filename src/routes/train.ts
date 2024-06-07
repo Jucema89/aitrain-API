@@ -10,7 +10,7 @@ router
     check('name', 'el nombre es requerido').not().isEmpty(),
     check('name', 'El nombre debe ser un String').isString(),
     check('description', 'la descripcion es requerida').not().isEmpty(),
-    check('description', 'la descreipcion debe ser String').not().isString(),
+    check('description', 'la descreipcion debe ser String').isString(),
     validateFields,
     createTraining
 )

@@ -13,15 +13,14 @@ const serviceIngest = new Ingest()
 async function createTraining(req: Request, res: Response) {
     try {
         const { files } = req
-        const { name, description, modelGeneratorData, awsKeyId, awsAccessKey, awsBucket, awsRegion, openAiKey, openAiModel, qdrantName, qdrantKey, qdrantUrl, } = req.body
+        const { name, description, modelGeneratorData } = req.body
 
         const filesArray = files as Express.Multer.File[]
 
-        const payload: Prisma.TrainRegisterUncheckedCreateInput = {
+        const payload: Prisma.TrainUncheckedCreateInput = {
             name: name, 
             description: description,
             modelGeneratorData: modelGeneratorData,
-            DB_VectorName: qdrantName
         }
 
         //create Train in DB Postgress
@@ -35,7 +34,7 @@ async function createTraining(req: Request, res: Response) {
 
         const ingestSuccess = []
 
-            for(let file of filesArray){
+              for(let file of filesArray){
                 const arrString: string[] = file.originalname.split('.')
                 const extension = arrString[arrString.length -1]
 

@@ -10,7 +10,7 @@ export class OpenAIService {
         })
 
         const list = await openai.models.list()
-        return list
+        return list.data
     }
 
     async createFinetunningJob(payload: OpenaiFinetuning): Promise<OpenaiFinetuningResponse>{

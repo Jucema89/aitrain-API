@@ -17,7 +17,7 @@
     "@langchain/community": "^0.0.43",
     "@langchain/openai": "^0.0.23",
     "@prisma/adapter-pg": "^5.11.0",
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^5.15.0",
     "@qdrant/js-client-rest": "^1.8.1",
     "@qdrant/qdrant-js": "^1.8.1",
     "cors": "^2.8.5",
@@ -46,7 +46,7 @@
     "@types/uuid": "^9.0.2",
     "@types/validator": "^13.11.1",
     "nodemon": "^3.1.0",
-    "prisma": "^5.11.0"
+    "prisma": "^5.15.0"
   },
   "engines": {
     "node": ">=20.9.0"
