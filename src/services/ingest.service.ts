@@ -1,20 +1,19 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
-import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
-import { SitemapLoader } from "langchain/document_loaders/web/sitemap";
+
+import { PuppeteerWebBaseLoader } from "@langchain/community/document_loaders/web/puppeteer";
+import { SitemapLoader } from "@langchain/community/document_loaders/web/sitemap";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { errorHandlerService } from "../helpers/error.handler";
 //EMBEDDINGS FILES
 import { TextLoader } from "langchain/document_loaders/fs/text";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { CSVLoader } from "langchain/document_loaders/fs/csv";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
 import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { createIndex } from "../database/qdrant";
 import { QdrantVectorStore } from "@langchain/community/vectorstores/qdrant";
 import { QdrantDB } from "../interfaces/qdrant.interface";
 import { IngestFile } from "../interfaces/ingest.interface";
-
-
 
 export class Ingest {
 
@@ -104,9 +103,7 @@ export class Ingest {
             return error
         }
     }
-    /**
-     * Upload alls files in Folder 'data' to Pinecone
-     */
+
     async uploadFolderComplete(database: QdrantDB){
         try {
 
@@ -131,6 +128,31 @@ export class Ingest {
             errorHandlerService(error, 'ERROR_INGEST_FROM_FOLDER_COMPLETE', `error when to ingest data form folder`)
         }
     }
+   
+    // async uploadFolderComplete(database: QdrantDB){
+    //     try {
+
+    //         const directoryLoader = new DirectoryLoader(this.FROM_PATH, {
+    //             ".ts": (path) => new TextLoader(path),
+    //             ".js": (path) => new TextLoader(path),
+    //             ".txt": (path) => new TextLoader(path),
+    //         });
+            
+    //         const rawDocs = await directoryLoader.load();
+    //         const textSplitter = new RecursiveCharacterTextSplitter({
+    //         chunkSize: 1000,
+    //         chunkOverlap: 200,
+    //         });
+        
+    //         const docs = await textSplitter.splitDocuments(rawDocs)
+    //         //if (this.VECTOR_STORE === "pinecone") await runPinecone(docs);
+    //         await createIndex(docs, database)
+
+            
+    //     } catch (error) {
+    //         errorHandlerService(error, 'ERROR_INGEST_FROM_FOLDER_COMPLETE', `error when to ingest data form folder`)
+    //     }
+    // }
 
     /**
      * 
