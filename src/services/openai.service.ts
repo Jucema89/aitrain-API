@@ -1,6 +1,10 @@
-import OpenAI from 'openai';
 import fs from "fs";
+import * as fsPromises from "node:fs/promises";
+import OpenAI from 'openai';
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
 import { OpenaiFile, OpenaiFinetuning, OpenaiFinetuningResponse, OpenAiModelsResponse } from '../interfaces/openai.interface';
+import { MessageContent } from "openai/resources/beta/threads/messages";
 
 export class OpenAIService {
 
@@ -75,6 +79,34 @@ export class OpenAIService {
 
         const list = await openai.files.list()
         return list.data
+    }
+
+    async multimodalQuestion(urlFile: string){
+
+       // const fileData = await fsPromises.readFile(urlFile)
+
+        const chat = new ChatOpenAI({
+        model: "gpt-4o",
+        maxTokens: 1024,
+        })
+
+        const message = new HumanMessage({
+        content: [
+            {
+            type: "text",
+            text: "Dame 1 pregunta con su respuesta basada en este documento. Pregunta y respuesta de maximo 200 caracteres",
+            },
+            {
+            type: "file_path",
+            file_path: {
+                url: urlFile,
+            },
+            },
+        ],
+        });
+
+        const res = await chat.invoke([message]);
+        console.log({ res });
     }
 
 }

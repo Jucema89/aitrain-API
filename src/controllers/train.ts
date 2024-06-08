@@ -5,10 +5,12 @@ import { Document } from "@langchain/core/documents";
 import { Prisma } from '@prisma/client'
 import { Ingest } from '../services/ingest.service'
 import { TrainingIA } from '../services/train-langchain.service';
+import { OpenAIService } from '../services/openai.service';
 
 const serviceTraining = new TrainingPrisma()
 const serviceTrainingIA = new TrainingIA()
 const serviceIngest = new Ingest()
+const serviceOpenAi = new OpenAIService()
 
 async function createTraining(req: Request, res: Response) {
     try {
@@ -16,30 +18,28 @@ async function createTraining(req: Request, res: Response) {
         const { name, description, modelGeneratorData, openAiKey, type_answer } = req.body
 
         const filesArray = files as Express.Multer.File[]
+        console.log('files ', files)
 
-        const payload: Prisma.TrainUncheckedCreateInput = {
-            name, description, modelGeneratorData, openAiKey, type_answer
-        }
-
-        //create Train in DB Postgress
-        const createTrain = await serviceTraining.createOneTrain( payload )
-        //create data in Vector Database
-        // const databaseVector: QdrantDB = {
-        //     database_url: qdrantUrl,
-        //     database_key: qdrantKey,
-        //     database_collection: qdrantName
+        // const payload: Prisma.TrainUncheckedCreateInput = {
+        //     name, description, modelGeneratorData, openAiKey, type_answer
         // }
+
+        // //create Train in DB Postgress
+        // const createTrain = await serviceTraining.createOneTrain( payload )
 
         const ingestSuccess = []
 
               for(let file of filesArray){
-                const arrString: string[] = file.originalname.split('.')
-                const extension = arrString[arrString.length -1]
 
-                const chunks: Document<Record<string, any>>[] = await serviceIngest.ingestSplitter(file.path, extension)
+                const filePath = `${process.cwd()}/uploads/${file.filename}`
+                await serviceOpenAi.multimodalQuestion( filePath )
+                // const arrString: string[] = file.originalname.split('.')
+                // const extension = arrString[arrString.length -1]
 
-                const respopnseTrain = await serviceTrainingIA.createJsFile(chunks, `${file.originalname}.js`)
-                ingestSuccess.push( respopnseTrain ) 
+                // const chunks: Document<Record<string, any>>[] = await serviceIngest.ingestSplitter(file.path, extension)
+
+                // const respopnseTrain = await serviceTrainingIA.createJsFile(chunks, `${file.originalname}.js`)
+                // ingestSuccess.push( respopnseTrain )
                 // const data: IngestFile = {
                 //     file: file,
                 //     ext: extension,
@@ -53,19 +53,19 @@ async function createTraining(req: Request, res: Response) {
                 // ingestSuccess.push( serviceResponse ) 
             }
 
-        if(ingestSuccess && createTrain){
-            if(createTrain){
-                res.status(200).json({
-                    success: true,
-                    data: ingestSuccess
-                })
-            } else {
-                res.status(200).json({
-                    success: false,
-                    message: 'No pudimos crear el Entenamiento.'
-                })
-            }
-        }
+        // if(ingestSuccess && createTrain){
+        //     if(createTrain){
+        //         res.status(200).json({
+        //             success: true,
+        //             data: ingestSuccess
+        //         })
+        //     } else {
+        //         res.status(200).json({
+        //             success: false,
+        //             message: 'No pudimos crear el Entenamiento.'
+        //         })
+        //     }
+        // }
 
         } catch (error) {
         handleHttp(res, 'Error in createTraining', error)
