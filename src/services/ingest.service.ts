@@ -273,5 +273,55 @@ export class Ingest {
         throw new Error('Extension File is not extension valid.')
     }
 
+    /**
+     * Get a file with validate types file to transform in Documents Text
+     * @param pathFile route of file to DocumentText 
+     * @param ext extension file
+     * @returns 
+     */
+    async filesToDocument(
+        pathFile: string, 
+        ext: string, 
+    ):Promise<Document<Record<string, any>>[]> {
+
+        const textSplitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1500,
+            chunkOverlap: 10
+        })
+
+        let loader
+        let rawDocs: Document<Record<string, any>>[]
+
+        if(this.pdfExtensionsAvailable.includes(ext)){
+            loader = new PDFLoader(pathFile)
+            rawDocs = await loader.load()
+            const docPDF = await textSplitter.splitDocuments(rawDocs);
+            return docPDF
+        }
+
+        if(this.excelExtensionsAvaliable.includes(ext)){
+            loader = new CSVLoader(pathFile)
+            rawDocs = await loader.load()
+            const docXLS = await textSplitter.splitDocuments(rawDocs);
+            return docXLS
+        }
+
+        if(this.wordExtensionsAvaliable.includes(ext)){
+            loader = new TextLoader(pathFile)
+            rawDocs = await loader.load()
+            const docTXT = await textSplitter.splitDocuments(rawDocs);
+            return docTXT
+        }
+
+        if(ext === 'json'){
+            loader = new JSONLoader(pathFile)
+            rawDocs = await loader.load()
+            const docJson = await textSplitter.splitDocuments(rawDocs);
+            return docJson
+        }
+
+        throw new Error('Extension File is not extension valid.')
+    }
+
 
 }

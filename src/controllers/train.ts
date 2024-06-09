@@ -5,7 +5,8 @@ import { Document } from "@langchain/core/documents";
 import { Prisma } from '@prisma/client'
 import { Ingest } from '../services/ingest.service'
 import { TrainingIA } from '../services/train-langchain.service';
-import { OpenAIService } from '../services/openai.service';
+import { OpenAIService } from '../services/openai/openai.service';
+import { TrainingOpenAI } from '../interfaces/training.interface';
 
 const serviceTraining = new TrainingPrisma()
 const serviceTrainingIA = new TrainingIA()
@@ -15,7 +16,7 @@ const serviceOpenAi = new OpenAIService()
 async function createTraining(req: Request, res: Response) {
     try {
         const { files } = req
-        const { name, description, modelGeneratorData, openAiKey, type_answer } = req.body
+        const payload = req.body as TrainingOpenAI
 
         const filesArray = files as Express.Multer.File[]
         console.log('files ', files)
@@ -29,29 +30,31 @@ async function createTraining(req: Request, res: Response) {
 
         const ingestSuccess = []
 
-              for(let file of filesArray){
+        await serviceOpenAi.multimodalQuestion( filesArray, payload )
 
-                const filePath = `${process.cwd()}/uploads/${file.filename}`
-                await serviceOpenAi.multimodalQuestion( filePath )
-                // const arrString: string[] = file.originalname.split('.')
-                // const extension = arrString[arrString.length -1]
+            //   for(let file of filesArray){
 
-                // const chunks: Document<Record<string, any>>[] = await serviceIngest.ingestSplitter(file.path, extension)
+            //     const filePath = `${process.cwd()}/uploads/${file.filename}`
+                
+            //     // const arrString: string[] = file.originalname.split('.')
+            //     // const extension = arrString[arrString.length -1]
 
-                // const respopnseTrain = await serviceTrainingIA.createJsFile(chunks, `${file.originalname}.js`)
-                // ingestSuccess.push( respopnseTrain )
-                // const data: IngestFile = {
-                //     file: file,
-                //     ext: extension,
-                //     database: databaseVector
-                // }
+            //     // const chunks: Document<Record<string, any>>[] = await serviceIngest.ingestSplitter(file.path, extension)
 
-                // const serviceResponse = await serviceIngest.uploadSingleFileQdrant(
-                //     data
-                // )
+            //     // const respopnseTrain = await serviceTrainingIA.createJsFile(chunks, `${file.originalname}.js`)
+            //     // ingestSuccess.push( respopnseTrain )
+            //     // const data: IngestFile = {
+            //     //     file: file,
+            //     //     ext: extension,
+            //     //     database: databaseVector
+            //     // }
 
-                // ingestSuccess.push( serviceResponse ) 
-            }
+            //     // const serviceResponse = await serviceIngest.uploadSingleFileQdrant(
+            //     //     data
+            //     // )
+
+            //     // ingestSuccess.push( serviceResponse ) 
+            // }
 
         // if(ingestSuccess && createTrain){
         //     if(createTrain){

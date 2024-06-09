@@ -8,7 +8,7 @@ const PORT = process.env.PORT_EXPRESS || 3500
 const app = express()
 app.set('server.timeout', 600000);
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ strict: false }))
 
 app.use('/api', router)
  

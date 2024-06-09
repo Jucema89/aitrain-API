@@ -17,8 +17,24 @@ model Train {
   modelGeneratorData     String               @default("")
   openAiKey              String
   type_answer            TypeAnswer
+  questions              TrainQuestions[]
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
+}
+
+model TrainQuestions {
+  id                     String               @id @default(uuid())
+  trainId                String
+  train                  Train                @relation(fields: [trainId], references: [id])
+  questionsAndAnswer     QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id                     String               @id @default(uuid())
+  trainQuestionId        String
+  trainQuestion          TrainQuestions       @relation(fields: [trainQuestionId], references: [id])
+  question               String
+  answer                 String
 }
 
 model File {

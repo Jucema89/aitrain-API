@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { handleHttp } from '../helpers/error.handler'
-import { OpenAIService } from '../services/openai.service'
+import { OpenAIService } from '../services/openai/openai.service'
 import { OpenAiModelsResponse } from '../interfaces/openai.interface'
 
 const serviceOpenAI = new OpenAIService()

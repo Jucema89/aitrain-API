@@ -6,12 +6,14 @@ export interface Training {
     name :string
     description :string           
     modelGeneratorData :string
+    openAiKey: string
     type_answer: TypeAnswer
     createdAt : Date             
     updatedAt : Date  
 }
 
 export type TrainingCreate = Omit<Training, 'id'  | 'createdAt' | 'updatedAt'>;
+export type TrainingOpenAI = Omit<Training, 'id'  | 'files' | 'createdAt' | 'updatedAt'>;
 export type TypeAnswer = 'alls' | 'short' | 'long_explained'
 export interface FileTraining {
     id :string                
