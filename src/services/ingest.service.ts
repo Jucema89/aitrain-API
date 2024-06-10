@@ -286,7 +286,7 @@ export class Ingest {
 
         const textSplitter = new RecursiveCharacterTextSplitter({
             chunkSize: 1500,
-            chunkOverlap: 10
+            chunkOverlap: 0
         })
 
         let loader
@@ -295,6 +295,7 @@ export class Ingest {
         if(this.pdfExtensionsAvailable.includes(ext)){
             loader = new PDFLoader(pathFile)
             rawDocs = await loader.load()
+            //return rawDocs
             const docPDF = await textSplitter.splitDocuments(rawDocs);
             return docPDF
         }
@@ -302,6 +303,7 @@ export class Ingest {
         if(this.excelExtensionsAvaliable.includes(ext)){
             loader = new CSVLoader(pathFile)
             rawDocs = await loader.load()
+            //return rawDocs
             const docXLS = await textSplitter.splitDocuments(rawDocs);
             return docXLS
         }
@@ -309,6 +311,7 @@ export class Ingest {
         if(this.wordExtensionsAvaliable.includes(ext)){
             loader = new TextLoader(pathFile)
             rawDocs = await loader.load()
+            //return rawDocs
             const docTXT = await textSplitter.splitDocuments(rawDocs);
             return docTXT
         }
@@ -316,6 +319,7 @@ export class Ingest {
         if(ext === 'json'){
             loader = new JSONLoader(pathFile)
             rawDocs = await loader.load()
+            //return rawDocs
             const docJson = await textSplitter.splitDocuments(rawDocs);
             return docJson
         }

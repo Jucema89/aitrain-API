@@ -4,7 +4,7 @@ export interface Training {
     id: string       
     files: FileTraining[]
     name :string
-    description :string           
+    role_system :string           
     modelGeneratorData :string
     openAiKey: string
     type_answer: TypeAnswer
@@ -31,3 +31,9 @@ export interface ConfigurationEnv {
     postgresUrl: string
 }
 
+
+export interface CreatorQuestion {
+    questions: { pregunta: string, respuesta: string }[]
+    role_system: string
+    tokens_usage: number
+}

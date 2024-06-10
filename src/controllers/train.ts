@@ -4,7 +4,7 @@ import { TrainingPrisma } from '../services/train-prisma.service'
 import { Document } from "@langchain/core/documents";
 import { Prisma } from '@prisma/client'
 import { Ingest } from '../services/ingest.service'
-import { TrainingIA } from '../services/train-langchain.service';
+import { TrainingIA } from '../services/langchain.service';
 import { OpenAIService } from '../services/openai/openai.service';
 import { TrainingOpenAI } from '../interfaces/training.interface';
 
@@ -19,7 +19,7 @@ async function createTraining(req: Request, res: Response) {
         const payload = req.body as TrainingOpenAI
 
         const filesArray = files as Express.Multer.File[]
-        console.log('files ', files)
+        //console.log('files ', files)
 
         // const payload: Prisma.TrainUncheckedCreateInput = {
         //     name, description, modelGeneratorData, openAiKey, type_answer
@@ -30,7 +30,21 @@ async function createTraining(req: Request, res: Response) {
 
         const ingestSuccess = []
 
-        await serviceOpenAi.multimodalQuestion( filesArray, payload )
+        const responseQuestions = await serviceOpenAi.creatorQuestion( filesArray, payload )
+
+        console.log('response question  controller = ', responseQuestions )
+
+        const jsonlResponse = await serviceTrainingIA.createJslFile( responseQuestions, payload.name )
+
+        console.log('response question  controller = ', jsonlResponse )
+
+       
+
+        res.status(200).json({
+            success: true,
+            data: responseQuestions,
+            message: 'Train start, please await few minutes.'
+        })
 
             //   for(let file of filesArray){
 
@@ -121,15 +135,15 @@ async function getOneTraining(req: Request, res: Response){
 
 async function updateTraining(req: Request, res: Response) {
     try {
-        const { id, name, description } = req.body
+        const { id, name, role_system } = req.body
 
         const actualData = await serviceTraining.getOneTraining( id )
 
         if(actualData){
             const payload: Prisma.TrainUncheckedCreateInput = {
                 ...actualData,
-                name: name, 
-                description: description,
+                name,
+                role_system
             }
     
             const updateTrain = await serviceTraining.update( id, payload )
