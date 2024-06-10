@@ -13,7 +13,7 @@ model Train {
   id                     String               @id @default(uuid())
   files                  File[]
   name                   String
-  description            String               @default("")
+  role_system            String               @default("")
   modelGeneratorData     String               @default("")
   openAiKey              String
   type_answer            TypeAnswer

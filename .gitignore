@@ -48,7 +48,7 @@ jspm_packages/
 
 # exclude uploads
 uploads/*
-chunks/*
+trainers/*
 
 #uploads files in folder
 !uploads/.gitkeep 
