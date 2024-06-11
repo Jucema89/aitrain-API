@@ -9,14 +9,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Train {
+model TrainDocs {
   id                     String               @id @default(uuid())
   files                  File[]
+  tokens_usage           Int                  @default(0)
   name                   String
+  status                 StatusFileTrain      @default(start)
   role_system            String               @default("")
   modelGeneratorData     String               @default("")
   openAiKey              String
   type_answer            TypeAnswer
+  observations           String               @default("")
   questions              TrainQuestions[]
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
@@ -25,7 +28,7 @@ model Train {
 model TrainQuestions {
   id                     String               @id @default(uuid())
   trainId                String
-  train                  Train                @relation(fields: [trainId], references: [id])
+  train                  TrainDocs                @relation(fields: [trainId], references: [id])
   questionsAndAnswer     QuestionAnswer[]
 }
 
@@ -39,16 +42,30 @@ model QuestionAnswer {
 
 model File {
   id                     String               @id @default(uuid())
-  train                  Train                @relation(fields: [trainId], references: [id])
+  train                  TrainDocs            @relation(fields: [trainId], references: [id])
   trainId                String
   fieldName              String
-  type                   TypeFile
+  extension              String
+  typeFileInTrain        TypeFileTrain
   name                   String
   link                   String
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
 }
 
+enum TypeFileTrain {
+  base  //files charged
+  final //files created in training
+}
+
+
+enum StatusFileTrain {
+  start
+  running
+  finish
+  cancel
+  cancel_with_error
+}
 enum TypeAnswer {
   alls
   short

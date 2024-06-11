@@ -3,7 +3,8 @@ import { File } from '../interfaces/aws.interface'
 import { DataCreateFile, FileDataSave } from '../interfaces/aws.interface';
 import { AWSService } from './aws.service';
 import prisma from '../database/prisma';
-import { Prisma, TypeFile } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { FileTraining } from '../interfaces/training.interface';
 
 export class FileService extends AWSService {
 
@@ -13,52 +14,53 @@ export class FileService extends AWSService {
     return prisma.file.findMany({})
   }
 
-  async create(payload: Prisma.FileUncheckedCreateInput): Promise<Prisma.Prisma__FileClient<File>> {
+  async create(payload: Prisma.FileUncheckedCreateInput): Promise<Prisma.Prisma__FileClient<FileTraining>> {
       const file = await prisma.file.create({ data: payload });
       return file
-  }
+  }  
 
-  createMany( files: Express.Multer.File[], idRegister:string )
-  :Promise<Prisma.FileUncheckedCreateInput[]> {
-    return new Promise(async (result, reject) => {
-      try { 
+  // createMany( files: Express.Multer.File[], idRegister:string, typeFiles: 'base' | 'final' )
+  // :Promise<Prisma.FileUncheckedCreateInput[]> {
+  //   return new Promise(async (result, reject) => {
+  //     try { 
 
-        //archivos subiendo a AWS
-        const filesUpload: FileDataSave[] = await this.multiFilesUpload(files)
+  //       //archivos subiendo a AWS
+  //       const filesUpload: FileDataSave[] = await this.multiFilesUpload(files)
 
-        const filesSuccess: Prisma.FileUncheckedCreateInput[] = [];
+  //       const filesSuccess: Prisma.FileUncheckedCreateInput[] = [];
 
-        if(filesUpload.length){
+  //       if(filesUpload.length){
 
-          for(let i: number = 0; i < filesUpload.length; i++){
+  //         for(let i: number = 0; i < filesUpload.length; i++){
 
-            let payload: Prisma.FileUncheckedCreateInput;
+  //           let payload: Prisma.FileUncheckedCreateInput;
 
-            payload = { 
-              ...filesUpload[i],
-              registerId: idRegister
-            }
+  //           payload = { 
+  //             ...filesUpload[i],
+  //             trainId: idRegister,
+  //             typeFileInTrain: typeFiles
+  //           }
 
-            //archivos registrados en DB
-            const fileSave = await prisma.file.create({ data: payload });
+  //           //archivos registrados en DB
+  //           const fileSave = await prisma.file.createMany({ data: payload });
 
-            filesSuccess.push( fileSave )
-          }
+  //           filesSuccess.push( fileSave )
+  //         }
 
-          result(filesSuccess)
+  //         result(filesSuccess)
 
-        } else {
-          reject('Error: Files array is Empty')
-        }
+  //       } else {
+  //         reject('Error: Files array is Empty')
+  //       }
 
-      } catch (error) {
-        console.log('error Upload array Files ', error);
-        reject(error)
-      }
-    })
-  }
+  //     } catch (error) {
+  //       console.log('error Upload array Files ', error);
+  //       reject(error)
+  //     }
+  //   })
+  // }
 
-  async update( id: string, payload: Prisma.FileUncheckedCreateInput ): Promise<Prisma.Prisma__FileClient<File>> {
+  async update( id: string, payload: Prisma.FileUncheckedCreateInput ): Promise<Prisma.Prisma__FileClient<FileTraining>> {
 
     const fileUpdate = await prisma.file.update({
       where: {
@@ -74,7 +76,7 @@ export class FileService extends AWSService {
     return fileUpdate
   }
 
-  async getById (id: string): Promise<Prisma.Prisma__FileClient<File>> {
+  async getById (id: string): Promise<Prisma.Prisma__FileClient<FileTraining>> {
 
     const fileGet = await prisma.file.findUnique({
       where: {
