@@ -40,7 +40,7 @@ export class TrainingIA {
 
         return new Promise((result, reject) => {
             try {
-                const filePath = `${process.cwd()}/trainers/${nameToFile}`;
+                const filePath = `${process.cwd()}/trainers/${nameToFile}.jsonl`;
                 const stream = fs.createWriteStream(filePath, { flags: 'a' });
 
                 data.questions.forEach((QandR) => {

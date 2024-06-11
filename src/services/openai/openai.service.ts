@@ -123,10 +123,23 @@ export class OpenAIService {
 
                 console.log('vectorsInMemory count ', vectorsInMemory.length)
 
+                let tokensUsage = 0
+                const calculateToken = (tokenSetter: number, valueToAdd: number) => {
+                    tokenSetter = tokenSetter + valueToAdd
+                }
+
                 const model = new ChatOpenAI({
                     model: payload.modelGeneratorData,
                     temperature: 0.3,
                     apiKey: payload.openAiKey,
+                    callbacks: [
+                    {
+                        handleLLMEnd(output) {
+                        //console.log(JSON.stringify(output, null, 2));
+                        calculateToken( tokensUsage, output.llmOutput?.tokenUsage.totalTokens )
+                        },
+                    },
+                    ],
                 })
 
                 const qaSchema = {
@@ -141,8 +154,6 @@ export class OpenAIService {
                 const modelWithStructuredOutput = model.withStructuredOutput(qaSchema);
 
                 
-
-                let tokensUsage = 0
                 const questionsCreated: { pregunta: string, respuesta: string }[] = []
 
                 for(let vector of vectorsInMemory){
@@ -159,8 +170,8 @@ export class OpenAIService {
                         ["human", `${vector.content}`],
                         ])
                         
-                        const chain = prompt.pipe(modelWithStructuredOutput);
-                        const res = await chain.invoke({});
+                        const chain = prompt.pipe(modelWithStructuredOutput)
+                        const res = await chain.invoke({})
 
                         console.log('res == ', res)
 
