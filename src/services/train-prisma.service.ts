@@ -1,11 +1,8 @@
 import prisma from '../database/prisma';
 import { Prisma, TypeFileTrain } from '@prisma/client';
 import { Training } from '../interfaces/training.interface';
-import { AWSService } from './aws.service';
 
 export class TrainingPrisma {
-
-    private awsService = new AWSService()
 
     getAllTrainingData(filters?: any) {
         return prisma.trainDocs.findMany({ include: { files: true }})
@@ -57,7 +54,7 @@ export class TrainingPrisma {
         }
       }
 
-    async update( id: string, payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput ): Promise<Prisma.Prisma__TrainDocsClient<Training>> {
+    async update( id: string, payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput ) {
         return prisma.trainDocs.update({
             where: { id: id},
             data: payload,

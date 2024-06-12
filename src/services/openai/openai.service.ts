@@ -150,7 +150,7 @@ export class OpenAIService {
                     const  train = await this.serviceTrainPrisma.getOneTraining( idTraining )
                 
                     if(train){
-                        const { id, ...rest } = train
+                        const { id, files, ...rest } = train
                         this.serviceTrainPrisma.update(
                             idTraining, 
                             {
@@ -170,7 +170,7 @@ export class OpenAIService {
                 const  train = await this.serviceTrainPrisma.getOneTraining( idTraining )
                 
                 if(train){
-                    const { id, ...rest } = train
+                    const { id, files, ...rest } = train
                     this.serviceTrainPrisma.update(
                         idTraining, 
                         {

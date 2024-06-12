@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors"
 import { router } from "./routes";
 
-const PORT = process.env.PORT_EXPRESS || 3500
+const PORT = process.env.PORT_EXPRESS || 3900
 
 const app = express()
 app.set('server.timeout', 600000);
