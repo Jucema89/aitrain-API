@@ -8,13 +8,13 @@ export class TrainingPrisma {
     private awsService = new AWSService()
 
     getAllTrainingData(filters?: any) {
-        return prisma.trainDocs.findMany({})
+        return prisma.trainDocs.findMany({ include: { files: true }})
     }
 
     getOneTraining(id: string) {
         return prisma.trainDocs.findUnique({
             where: { id: id },
-            //include: { questions: true }
+            include: { files: true }
         })
     }
 
@@ -57,7 +57,7 @@ export class TrainingPrisma {
         }
       }
 
-    async update( id: string, payload: Prisma.TrainDocsUncheckedCreateInput ): Promise<Prisma.Prisma__TrainDocsClient<Training>> {
+    async update( id: string, payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput ): Promise<Prisma.Prisma__TrainDocsClient<Training>> {
         return prisma.trainDocs.update({
             where: { id: id},
             data: payload,

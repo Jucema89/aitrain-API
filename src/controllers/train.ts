@@ -7,6 +7,7 @@ import { Ingest } from '../services/ingest.service'
 import { TrainingIA } from '../services/langchain.service';
 import { OpenAIService } from '../services/openai/openai.service';
 import { TrainingOpenAI } from '../interfaces/training.interface';
+import { removeLocalFile } from '../helpers/files.handler';
 
 const serviceTraining = new TrainingPrisma()
 const serviceOpenAi = new OpenAIService()
@@ -94,7 +95,7 @@ async function updateTraining(req: Request, res: Response) {
         const actualData = await serviceTraining.getOneTraining( id )
 
         if(actualData){
-            const payload: Prisma.TrainDocsUncheckedCreateInput = {
+            const payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput = {
                 ...actualData,
                 name,
                 role_system
@@ -128,17 +129,44 @@ async function updateTraining(req: Request, res: Response) {
 async function deleteTraining(req: Request, res: Response) {
     try {
         const { id } = req.params
-        const removeTrain = await serviceTraining.deleteById( id )
 
-        if(removeTrain.success){
-            res.status(200).json({
-                success: true,
-                data: removeTrain
-            })
-        }else {
+        const existTrain = await serviceTraining.getOneTraining( id )
+        const filesRemoved: string[] = []
+
+        if(existTrain){
+            for(let file of existTrain.files ){
+                await removeLocalFile( file.link )
+                filesRemoved.push(file.name)
+            }
+
+            const removeTrain = await serviceTraining.deleteById( id )
+
+            if(removeTrain.success){
+                res.status(200).json({
+                    success: true,
+                    data: {
+                        files_removed: filesRemoved
+                    },
+                    message: removeTrain.message
+                })
+            } else {
+                res.status(200).json({
+                    success: false,
+                    data: {
+                        files_removed: filesRemoved
+                    },
+                    message: removeTrain.message
+                })
+            }
+
+        } else {
+            ///error not exist train
             res.status(200).json({
                 success: false,
-                data: removeTrain
+                data: {
+                    files_removed: []
+                },
+                message: 'No existe un train con este ID'
             })
         }
 

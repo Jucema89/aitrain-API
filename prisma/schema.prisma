@@ -28,21 +28,21 @@ model TrainDocs {
 model TrainQuestions {
   id                     String               @id @default(uuid())
   trainId                String
-  train                  TrainDocs                @relation(fields: [trainId], references: [id])
+  train                  TrainDocs            @relation(fields: [trainId], references: [id], onDelete: Cascade)
   questionsAndAnswer     QuestionAnswer[]
 }
 
 model QuestionAnswer {
   id                     String               @id @default(uuid())
   trainQuestionId        String
-  trainQuestion          TrainQuestions       @relation(fields: [trainQuestionId], references: [id])
+  trainQuestion          TrainQuestions       @relation(fields: [trainQuestionId], references: [id], onDelete: Cascade )
   question               String
   answer                 String
 }
 
 model File {
   id                     String               @id @default(uuid())
-  train                  TrainDocs            @relation(fields: [trainId], references: [id])
+  train                  TrainDocs            @relation(fields: [trainId], references: [id], onDelete: Cascade)
   trainId                String
   fieldName              String
   extension              String
