@@ -17,7 +17,6 @@ import { IngestFile } from "../interfaces/ingest.interface";
 
 export class Ingest {
 
-    private VECTOR_STORE = process.env.STORE_MODE ?? ""
     private FROM_PATH = `${process.cwd()}/data`
 
     private imageExtensionsAvailable = [
@@ -120,7 +119,6 @@ export class Ingest {
             });
         
             const docs = await textSplitter.splitDocuments(rawDocs)
-            //if (this.VECTOR_STORE === "pinecone") await runPinecone(docs);
             await createIndex(docs, database)
 
             
@@ -128,31 +126,6 @@ export class Ingest {
             errorHandlerService(error, 'ERROR_INGEST_FROM_FOLDER_COMPLETE', `error when to ingest data form folder`)
         }
     }
-   
-    // async uploadFolderComplete(database: QdrantDB){
-    //     try {
-
-    //         const directoryLoader = new DirectoryLoader(this.FROM_PATH, {
-    //             ".ts": (path) => new TextLoader(path),
-    //             ".js": (path) => new TextLoader(path),
-    //             ".txt": (path) => new TextLoader(path),
-    //         });
-            
-    //         const rawDocs = await directoryLoader.load();
-    //         const textSplitter = new RecursiveCharacterTextSplitter({
-    //         chunkSize: 1000,
-    //         chunkOverlap: 200,
-    //         });
-        
-    //         const docs = await textSplitter.splitDocuments(rawDocs)
-    //         //if (this.VECTOR_STORE === "pinecone") await runPinecone(docs);
-    //         await createIndex(docs, database)
-
-            
-    //     } catch (error) {
-    //         errorHandlerService(error, 'ERROR_INGEST_FROM_FOLDER_COMPLETE', `error when to ingest data form folder`)
-    //     }
-    // }
 
     /**
      * 

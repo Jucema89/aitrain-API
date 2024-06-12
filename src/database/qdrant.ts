@@ -21,16 +21,16 @@ async function createIndex(docs: Document<Record<string, any>>[], database: Qdra
     return vectorStore
 }
 
-async function queryDocs(db: string, query: string) {
+async function queryDocs(query: string, database: QdrantDB) {
  
     const vectorStore = await QdrantVectorStore.fromExistingCollection(
         new OpenAIEmbeddings({
             modelName: "text-embedding-3-small",
         }),
         {
-            url: process.env.QDRANT_URL,
-            collectionName: db,
-            apiKey: `${process.env.QDRANT_KEY}`
+            url: database.database_url,
+            collectionName: database.database_collection,
+            apiKey: database.database_key
         }
         );
         
