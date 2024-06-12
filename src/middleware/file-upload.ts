@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 import multer, { diskStorage } from "multer";
 
 const PATH_STORAGE = `${process.cwd()}/uploads`;
@@ -10,8 +10,8 @@ const storage = diskStorage({
   },
   filename(req: Request, file: Express.Multer.File, cb: any) {
     const ext = file.originalname.split(".").pop();
-    const fileNameRandom = `${uuidv4()}.${ext}`;
-    cb(null, fileNameRandom);
+    //const fileNameRandom = `${uuidv4()}.${ext}`;
+    cb(null, file.originalname);
   },
 })
 

@@ -33,17 +33,27 @@ export class TrainingIA {
     }
 
 
-    createJslFile(data: CreatorQuestion, nameToFile: string): Promise<{
-        success: boolean, message: string
+    createJslFiles(data: CreatorQuestion, idTrain: string, ): Promise<{
+        success: boolean, trainJsonUrl: string, validateJsonUrl: string
     }>{
         const fs = require('fs')
 
         return new Promise((result, reject) => {
             try {
-                const filePath = `${process.cwd()}/trainers/${nameToFile}.jsonl`;
-                const stream = fs.createWriteStream(filePath, { flags: 'a' });
 
-                data.questions.forEach((QandR) => {
+                let response = {
+                    success: false, 
+                    trainJsonUrl: '', 
+                    validateJsonUrl: ''
+                }
+
+                const arrayTrain = data.questions
+                const arrayValidate = arrayTrain.splice(0, 20)
+
+                const filePathTraining = `${process.cwd()}/trainers/training-${idTrain}.jsonl`;
+                const streamTraining = fs.createWriteStream(filePathTraining, { flags: 'a' })
+
+                arrayTrain.forEach((QandR) => {
                     let newJson = {
                         "messages":[
                               {
@@ -61,15 +71,49 @@ export class TrainingIA {
                           ]
                       }
 
-                    stream.write(JSON.stringify(newJson) + '\n');
-                });
+                      streamTraining.write(JSON.stringify(newJson) + '\n');
+                })
         
-                stream.end(() => {
-                    console.log(`${nameToFile} Creado exitosamente`)
-                    result({ success: true, message: `${nameToFile} Creado Correctamente!`})
+                streamTraining.end(() => {
+                    console.log(`${filePathTraining} Creado exitosamente`)
                 })
 
+                const filePathValidate = `${process.cwd()}/trainers/validate-${idTrain}.jsonl`;
+                const streamValidate = fs.createWriteStream(filePathValidate, { flags: 'a' })
+
+                arrayValidate.forEach((QandR) => {
+                    let newJson = {
+                        "messages":[
+                              {
+                                "role":"system",
+                                "content":`${data.role_system}`
+                              },
+                              {
+                                "role":"user",
+                                "content":`${QandR.pregunta}`
+                              },
+                              {
+                                "role":"assistant",
+                                "content":`${QandR.respuesta}`
+                              }
+                          ]
+                      }
+
+                      streamValidate.write(JSON.stringify(newJson) + '\n');
+                })
+
+                streamValidate.end(() => {
+                    console.log(`${filePathValidate} Creado exitosamente`)
+                })
+
+                response.success = true
+                response.validateJsonUrl = filePathValidate
+                response.trainJsonUrl = filePathTraining
+                
+                result( response )
+
             } catch (error) {
+                console.log('Error created JsonlFiles')
                 reject(error)
             }
            

@@ -7,10 +7,9 @@ import { Ingest } from '../services/ingest.service'
 import { TrainingIA } from '../services/langchain.service';
 import { OpenAIService } from '../services/openai/openai.service';
 import { TrainingOpenAI } from '../interfaces/training.interface';
+import { removeLocalFile } from '../helpers/files.handler';
 
 const serviceTraining = new TrainingPrisma()
-const serviceTrainingIA = new TrainingIA()
-const serviceIngest = new Ingest()
 const serviceOpenAi = new OpenAIService()
 
 async function createTraining(req: Request, res: Response) {
@@ -19,70 +18,26 @@ async function createTraining(req: Request, res: Response) {
         const payload = req.body as TrainingOpenAI
 
         const filesArray = files as Express.Multer.File[]
-        //console.log('files ', files)
 
-        // const payload: Prisma.TrainUncheckedCreateInput = {
-        //     name, description, modelGeneratorData, openAiKey, type_answer
-        // }
+        const saveTraining = await serviceTraining.createOneTrain( payload )
 
-        // //create Train in DB Postgress
-        // const createTrain = await serviceTraining.createOneTrain( payload )
+       for( let file of filesArray){
+            await serviceTraining.addFileToTrain(
+                saveTraining.id,
+                'base',
+                file
+            )
+       }
 
-        const ingestSuccess = []
-
-        const responseQuestions = await serviceOpenAi.creatorQuestion( filesArray, payload )
-
-        console.log('response question  controller = ', responseQuestions )
-
-        const jsonlResponse = await serviceTrainingIA.createJslFile( responseQuestions, payload.name )
-
-        console.log('response question  controller = ', jsonlResponse )
-
-       
+        serviceOpenAi.startCreateTrainingDocs(
+            filesArray, payload, saveTraining.id 
+        )
 
         res.status(200).json({
             success: true,
-            data: responseQuestions,
-            message: 'Train start, please await few minutes.'
+            data: [],
+            message: `Entrenamiento creado correctamente con Id: ${saveTraining.id}.`
         })
-
-            //   for(let file of filesArray){
-
-            //     const filePath = `${process.cwd()}/uploads/${file.filename}`
-                
-            //     // const arrString: string[] = file.originalname.split('.')
-            //     // const extension = arrString[arrString.length -1]
-
-            //     // const chunks: Document<Record<string, any>>[] = await serviceIngest.ingestSplitter(file.path, extension)
-
-            //     // const respopnseTrain = await serviceTrainingIA.createJsFile(chunks, `${file.originalname}.js`)
-            //     // ingestSuccess.push( respopnseTrain )
-            //     // const data: IngestFile = {
-            //     //     file: file,
-            //     //     ext: extension,
-            //     //     database: databaseVector
-            //     // }
-
-            //     // const serviceResponse = await serviceIngest.uploadSingleFileQdrant(
-            //     //     data
-            //     // )
-
-            //     // ingestSuccess.push( serviceResponse ) 
-            // }
-
-        // if(ingestSuccess && createTrain){
-        //     if(createTrain){
-        //         res.status(200).json({
-        //             success: true,
-        //             data: ingestSuccess
-        //         })
-        //     } else {
-        //         res.status(200).json({
-        //             success: false,
-        //             message: 'No pudimos crear el Entenamiento.'
-        //         })
-        //     }
-        // }
 
         } catch (error) {
         handleHttp(res, 'Error in createTraining', error)
@@ -140,7 +95,7 @@ async function updateTraining(req: Request, res: Response) {
         const actualData = await serviceTraining.getOneTraining( id )
 
         if(actualData){
-            const payload: Prisma.TrainUncheckedCreateInput = {
+            const payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput = {
                 ...actualData,
                 name,
                 role_system
@@ -174,17 +129,44 @@ async function updateTraining(req: Request, res: Response) {
 async function deleteTraining(req: Request, res: Response) {
     try {
         const { id } = req.params
-        const removeTrain = await serviceTraining.deleteById( id )
 
-        if(removeTrain.success){
-            res.status(200).json({
-                success: true,
-                data: removeTrain
-            })
-        }else {
+        const existTrain = await serviceTraining.getOneTraining( id )
+        const filesRemoved: string[] = []
+
+        if(existTrain){
+            for(let file of existTrain.files ){
+                await removeLocalFile( file.link )
+                filesRemoved.push(file.name)
+            }
+
+            const removeTrain = await serviceTraining.deleteById( id )
+
+            if(removeTrain.success){
+                res.status(200).json({
+                    success: true,
+                    data: {
+                        files_removed: filesRemoved
+                    },
+                    message: removeTrain.message
+                })
+            } else {
+                res.status(200).json({
+                    success: false,
+                    data: {
+                        files_removed: filesRemoved
+                    },
+                    message: removeTrain.message
+                })
+            }
+
+        } else {
+            ///error not exist train
             res.status(200).json({
                 success: false,
-                data: removeTrain
+                data: {
+                    files_removed: []
+                },
+                message: 'No existe un train con este ID'
             })
         }
 

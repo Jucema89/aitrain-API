@@ -1,25 +1,64 @@
 import prisma from '../database/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, TypeFileTrain } from '@prisma/client';
 import { Training } from '../interfaces/training.interface';
+import { AWSService } from './aws.service';
 
 export class TrainingPrisma {
 
+    private awsService = new AWSService()
+
     getAllTrainingData(filters?: any) {
-        return prisma.train.findMany({})
+        return prisma.trainDocs.findMany({ include: { files: true }})
     }
 
-    getOneTraining(id: string){
-        return prisma.train.findUnique({
-            where: { id: id}
+    getOneTraining(id: string) {
+        return prisma.trainDocs.findUnique({
+            where: { id: id },
+            include: { files: true }
         })
     }
 
-    createOneTrain(payload: Prisma.TrainUncheckedCreateInput){
-        return prisma.train.create({ data: payload })
+    createOneTrain(payload: Prisma.TrainDocsUncheckedCreateInput){
+        return prisma.trainDocs.create({ data: payload })
     }
 
-    async update( id: string, payload: Prisma.TrainUncheckedCreateInput ): Promise<Prisma.Prisma__TrainClient<Training>> {
-        return prisma.train.update({
+    async addFileToTrain(
+        trainId: string, 
+        typeFile: TypeFileTrain,
+        fileData: Express.Multer.File) {
+        try {
+          // exist train?
+          const train = await prisma.trainDocs.findUnique({
+            where: { id: trainId },
+          });
+      
+          if (!train) {
+            throw new Error('Train not found');
+          }
+
+          const arrString: string[] = fileData.originalname.split('.')
+          const extension = arrString[arrString.length -1]
+      
+          const file = await prisma.file.create({
+            data: {
+              trainId: trainId,
+              fieldName: fileData.fieldname,
+              extension,
+              typeFileInTrain: typeFile,
+              name: fileData.originalname,
+              link: `${process.cwd()}/uploads/${fileData.filename}`,
+            },
+          })
+      
+          return file
+
+        } catch (error) {
+          throw new Error(`Failed to add file to Train: ${error}`);
+        }
+      }
+
+    async update( id: string, payload: Prisma.TrainDocsUncheckedCreateWithoutFilesInput ): Promise<Prisma.Prisma__TrainDocsClient<Training>> {
+        return prisma.trainDocs.update({
             where: { id: id},
             data: payload,
             include: { files: true }
@@ -28,7 +67,7 @@ export class TrainingPrisma {
 
     deleteById(id: string): Promise<{ success: boolean, message: string }> {
         return new Promise(async(result, reject) => {
-          const deletedFile = await prisma.train.delete({
+          const deletedFile = await prisma.trainDocs.delete({
             where: { id: id }
           })
           
