@@ -1,12 +1,17 @@
 import { File } from '../interfaces/aws.interface'
-
+import fs from 'fs';
 import { DataCreateFile, FileDataSave } from '../interfaces/aws.interface';
+import { Request, Response } from 'express'
+import { Readable } from 'node:stream';
+import * as fsPromises from "node:fs/promises";
+const path = require('path');
+
 import { AWSService } from './aws.service';
 import prisma from '../database/prisma';
 import { Prisma } from '@prisma/client';
 import { FileTraining } from '../interfaces/training.interface';
 
-export class FileService extends AWSService {
+export class FileService {
 
   private serviceAWS = new AWSService();
 
@@ -159,6 +164,38 @@ export class FileService extends AWSService {
             reject(error)
         }
     })
+  }
+
+  async getFile(filePath: string) {
+    try {
+      await fsPromises.access(filePath, fsPromises.constants.F_OK)
+      return filePath;
+    } catch (err) {
+      throw new Error('File not found');
+    }
+  }
+
+  async downloadFile(res: Response, filePath: string, filename: string):Promise<boolean> {
+    return new Promise((result, reject) => {
+      try {
+        
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Type', 'application/octet-stream')
+  
+        const fileStream: Readable =  fs.createReadStream(
+         filePath
+        )
+        fileStream.pipe(res)
+  
+        res.on('finish', () => {
+          result(true);
+        });
+  
+      } catch (error) {
+        reject(error)
+      }
+    })
+   
   }
 
 }
