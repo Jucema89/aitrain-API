@@ -3,7 +3,6 @@ import { check } from "express-validator";
 import { validateFields } from "../middleware/validate-fields";
 import { createFinetunigs, getAllFinetunigs, getModelsAvailable, getOneFinetunig } from "../controllers/openai";
 
-
 const router = Router()
 router
 .post('/get-models',

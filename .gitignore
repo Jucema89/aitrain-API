@@ -52,7 +52,7 @@ trainers/*
 
 #uploads files in folder
 !uploads/.gitkeep 
-!chuncks/.gitkeep 
+!trainers/.gitkeep 
 #folder data for IA
 data/*
 !data/.gitkeep
