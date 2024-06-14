@@ -58,45 +58,6 @@ export class OpenAIService {
         })
     }
 
-    async createFinetunningJob(payload: OpenaiFinetuning): Promise<OpenaiFinetuningResponse>{
-
-        const openai = new OpenAI({
-            apiKey: payload.apiKey
-        })
-
-        const fineTune = await openai.fineTuning.jobs.create({
-            training_file: payload.training_file,
-            model: payload.model,
-            validation_file: payload.validation_file
-        })
-
-        return fineTune as OpenaiFinetuningResponse
-    }
-
-    async uploadFile(apiKey: string, fileName: string): Promise<OpenaiFile>{
-
-        const openai = new OpenAI({
-            apiKey: apiKey
-        })
-
-        const file = await openai.files.create({
-            file: fs.createReadStream(fileName),
-            purpose: "fine-tune",
-        })
-
-        return file
-    }
-
-    async getFiles(apiKey: string): Promise<OpenaiFile[]>{
-        const openai = new OpenAI({
-            apiKey: apiKey
-        })
-
-        const list = await openai.files.list()
-        return list.data
-    }
-
-
     async transformDocsToText(files: Express.Multer.File[]):Promise<Document[]> {
         const chuncksText: Document[] = []
 
@@ -161,7 +122,7 @@ export class OpenAIService {
                         )
                     }
                 } else {
-                    return new Error('No se crearon los  ')
+                    return new Error('No se crearon los archivos de entrenamiento .jsonl')
                 }
 
                
