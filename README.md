@@ -52,10 +52,10 @@ Aitrain API usa [Postgres](https://www.postgresql.org/) como base de datos y a [
 ### Instalacion del proyecto
 Para instalar el proyecto deberas contar con [git](https://www.git-scm.com/) en tu maquina, abres una consola y ejecutar estos comandos:
 
-`git clone git@github.com:Jucema89/aitrain-API.git`
-`npm i`
-`npx  prisma  generate`
-`npm run dev`
+ - `git clone git@github.com:Jucema89/aitrain-API.git`
+ -  `npm i` 
+ - `npx prisma  generate`
+ -  `npm run dev`
 
 Recuerda crear el archivo `.env` en la raiz del proyecto, necesitaras estas variables de entorno. Las de AWS no son requeridas.
 ```
